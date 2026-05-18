@@ -30,11 +30,11 @@ def main(page: ft.Page):
             res_harina.value = "Error: Ingresa números"
         page.update()
 
-    txt_peso_total = ft.TextField(label="Peso total (gr)", value="1000", keyboard_type=ft.KeyboardType.NUMBER)
-    txt_p_harina = ft.TextField(label="% Harina", value="100", keyboard_type=ft.KeyboardType.NUMBER)
-    txt_p_agua = ft.TextField(label="% Agua", value="60", keyboard_type=ft.KeyboardType.NUMBER)
-    txt_p_sal = ft.TextField(label="% Sal", value="2", keyboard_type=ft.KeyboardType.NUMBER)
-    txt_p_levadura = ft.TextField(label="% Levadura", value="1", keyboard_type=ft.KeyboardType.NUMBER)
+    txt_peso_total = ft.TextField(label="Peso total (gr)", value="1000", border_color="blue")
+    txt_p_harina = ft.TextField(label="% Harina", value="100")
+    txt_p_agua = ft.TextField(label="% Agua", value="60")
+    txt_p_sal = ft.TextField(label="% Sal", value="2")
+    txt_p_levadura = ft.TextField(label="% Levadura", value="1")
 
     res_harina = ft.Text(size=20, weight="bold", color="blue")
     res_agua = ft.Text(size=18)
@@ -47,8 +47,8 @@ def main(page: ft.Page):
         txt_peso_total,
         ft.Row([txt_p_harina, txt_p_agua]),
         ft.Row([txt_p_sal, txt_p_levadura]),
-        # AQUÍ ESTÁ EL CAMBIO: CALCULATOR en lugar de CALCULATE
-        ft.ElevatedButton("Calcular", on_click=calcular, icon=ft.icons."calculate"),
+        # Botón simple sin iconos para evitar errores de versión
+        ft.ElevatedButton("Calcular Ingredientes", on_click=calcular),
         ft.Divider(),
         res_harina,
         res_agua,
