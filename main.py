@@ -90,4 +90,9 @@ def main(page: ft.Page):
         resultado
     )
 
-ft.app(target=main, view=ft.AppView.WEB_BROWSER)
+import os
+
+# Al final de tu archivo, reemplaza el ft.app por esto:
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8501))
+    ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=port)
