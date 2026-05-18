@@ -48,7 +48,7 @@ def main(page: ft.Page):
         ft.Row([txt_p_harina, txt_p_agua]),
         ft.Row([txt_p_sal, txt_p_levadura]),
         # AQUÍ ESTÁ EL CAMBIO: CALCULATOR en lugar de CALCULATE
-        ft.ElevatedButton("Calcular", on_click=calcular, icon=ft.icons.CALCULATOR),
+        ft.ElevatedButton("Calcular", on_click=calcular, icon=ft.icons."calculate"),
         ft.Divider(),
         res_harina,
         res_agua,
