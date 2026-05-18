@@ -1,98 +1,76 @@
+import signal
+# Este parche es para que Streamlit no de error de "signal"
+try:
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+except:
+    pass
+
 import flet as ft
+import os
 
 def main(page: ft.Page):
     page.title = "Calculadora de Masas"
     page.theme_mode = ft.ThemeMode.LIGHT
+    page.scroll = "adaptive"
     page.padding = 20
-    
-    # --- Componentes ---
-    tipo_masa = ft.Dropdown(
-        label="Selecciona Tipo de Masa",
-        options=[
-            ft.dropdown.Option("horno"),
-            ft.dropdown.Option("freir"),
-            ft.dropdown.Option("fideos"),
-        ],
-        width=300,
-    )
-    
-    kg_harina = ft.TextField(
-        label="Kg de Harina", 
-        width=300
-    )
-    
-    resultado = ft.Column()
 
+    # --- LÓGICA DE CÁLCULO ---
     def calcular(e):
-        resultado.controls.clear()
-        masa = tipo_masa.value
-        
-        if not masa or not kg_harina.value:
-            resultado.controls.append(ft.Text("Completa todos los campos", color="orange"))
-            page.update()
-            return
-
         try:
-            kg = float(kg_harina.value)
-        except:
-            resultado.controls.append(ft.Text("Ingresa un número válido", color="red"))
-            page.update()
-            return
+            # Obtenemos el peso total y los porcentajes
+            total = float(txt_peso_total.value)
+            p_harina = float(txt_p_harina.value) / 100
+            p_agua = float(txt_p_agua.value) / 100
+            p_sal = float(txt_p_sal.value) / 100
+            p_levadura = float(txt_p_levadura.value) / 100
 
-        datos = []
-        error = False
-
-        if masa == 'horno':
-            if kg == 60:
-                datos = [("Antimoho", "120 grs"), ("Sorbato", "60 grs"), ("Sal", "1.9 Kg"), ("Agua", "27.5 Kg")]
-            elif kg == 40:
-                datos = [("Antimoho", "80 grs"), ("Sorbato", "40 grs"), ("Sal", "1.25 Kg"), ("Agua", "18.3 Kg")]
-            else: error = True
-        
-        elif masa == 'freir':
-            if kg == 60:
-                datos = [("Antimoho", "120 grs"), ("Sorbato", "60 grs"), ("Sal", "1.9 Kg"), ("Agua", "21 Kg"), ("Grasa", "6.5 Kg")]
-            elif kg == 50:
-                datos = [("Antimoho", "100 grs"), ("Sorbato", "50 grs"), ("Sal", "1.6 Kg"), ("Agua", "17.5 Kg"), ("Grasa", "5.4 Kg")]
-            elif kg == 25:
-                datos = [("Antimoho", "50 grs"), ("Sorbato", "25 grs"), ("Sal", "0.8 Kg"), ("Agua", "8.75 Kg"), ("Grasa", "2.7 Kg")]
-            else: error = True
-
-        elif masa == 'fideos':
-            if kg == 50:
-                datos = [("Antimoho", "100 grs"), ("Sorbato", "50 grs"), ("Colorante", "240 grs"), ("Huevos", "30 unidades"), ("Agua", "12.8 Kg")]
-            else: error = True
-
-        if error:
-            resultado.controls.append(ft.Text("Cantidad de harina no válida", color="red"))
-        else:
-            resultado.controls.append(ft.Text(f"Receta para {masa.upper()}:", size=20, weight="bold"))
-            for nombre, valor in datos:
-                # Aquí quitamos los iconos por completo
-                resultado.controls.append(ft.Text(f"• {nombre}: {valor}", size=16))
+            # Calculamos la base (divisor)
+            base = p_harina + p_agua + p_sal + p_levadura
+            
+            # Peso de la harina (ingrediente principal)
+            harina = total / base
+            
+            # Resultados finales
+            res_harina.value = f"Harina: {harina:.2f} gr"
+            res_agua.value = f"Agua: {(harina * p_agua):.2f} gr"
+            res_sal.value = f"Sal: {(harina * p_sal):.2f} gr"
+            res_levadura.value = f"Levadura: {(harina * p_levadura):.2f} gr"
+            
+        except ValueError:
+            res_harina.value = "Error: Ingresa números válidos"
         
         page.update()
 
-    # Botón sin icono para evitar errores
-    btn_calcular = ft.FilledButton(
-        "Calcular Receta", 
-        on_click=calcular, 
-        width=300
-    )
+    # --- INTERFAZ ---
+    txt_peso_total = ft.TextField(label="Peso total de la masa (gr)", value="1000", keyboard_type=ft.KeyboardType.NUMBER)
+    
+    # Porcentajes panaderos (Valores por defecto comunes)
+    txt_p_harina = ft.TextField(label="% Harina", value="100", keyboard_type=ft.KeyboardType.NUMBER)
+    txt_p_agua = ft.TextField(label="% Agua (Hidratación)", value="60", keyboard_type=ft.KeyboardType.NUMBER)
+    txt_p_sal = ft.TextField(label="% Sal", value="2", keyboard_type=ft.KeyboardType.NUMBER)
+    txt_p_levadura = ft.TextField(label="% Levadura", value="1", keyboard_type=ft.KeyboardType.NUMBER)
+
+    res_harina = ft.Text(size=20, weight="bold", color="blue")
+    res_agua = ft.Text(size=18)
+    res_sal = ft.Text(size=18)
+    res_levadura = ft.Text(size=18)
 
     page.add(
-        ft.Text("Calculadora de Producción", size=28, weight="bold"),
+        ft.Text("Calculadora de Panadería", size=25, weight="bold"),
         ft.Divider(),
-        tipo_masa,
-        kg_harina,
-        btn_calcular,
+        txt_peso_total,
+        ft.Row([txt_p_harina, txt_p_agua]),
+        ft.Row([txt_p_sal, txt_p_levadura]),
+        ft.ElevatedButton("Calcular Ingredientes", on_click=calcular, icon=ft.icons.CALCULATE),
         ft.Divider(),
-        resultado
+        res_harina,
+        res_agua,
+        res_sal,
+        res_levadura
     )
 
-import os
-
-# Al final de tu archivo, reemplaza el ft.app por esto:
+# --- CONFIGURACIÓN PARA LA NUBE (STREAMLIT) ---
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8501))
+    # Streamlit usa el puerto 8501 por defecto en su nube
+    port = int(os.environ.get("PORT", 8501))
     ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=port)
