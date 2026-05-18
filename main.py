@@ -90,4 +90,4 @@ def main(page: ft.Page):
         resultado
     )
 
-ft.app(target=main, view=None, port=8080, host="0.0.0.0")
+ft.app(target=main, view=ft.AppView.WEB_BROWSER)
